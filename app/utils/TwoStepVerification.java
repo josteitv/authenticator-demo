@@ -15,7 +15,7 @@ public class TwoStepVerification {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
-     * Generates a 10 bit random secret to share between mobile phone and
+     * Generates a 10 byte random secret to share between mobile phone and
      * server. The secret is Base32 encoded.
      * 
      * @return a Base32 encoded string of 10 random bytes
