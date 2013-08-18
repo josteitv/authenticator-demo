@@ -1,0 +1,21 @@
+@(form: Form[User])
+
+@main("Register new user") {
+    
+    @helper.form(routes.RegisterNewUser.newUser()) {
+    
+        <h1>Register new user</h1>
+
+        @if(form.hasGlobalErrors) {
+            <p class="error">
+                @form.globalError.message
+            </p>
+        }
+
+    	@helper.inputText(form("username"))
+    	@helper.inputText(form("password"))
+
+        <br><input type="submit" value="Register new user">
+    }
+ 
+}

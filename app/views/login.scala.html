@@ -1,0 +1,29 @@
+@(form: Form[Login])
+
+@main("Log in") {
+    
+    @helper.form(routes.Authentication.login()) {
+    
+        <h1>Log in</h1>
+
+        @if(form.hasGlobalErrors) {
+            <p class="error">
+                @form.globalError.message
+            </p>
+        }
+            
+        @if(flash.contains("success")) {
+            <p class="success">
+                @flash.get("success")
+            </p>
+        }
+
+        @helper.inputText(form("username"))
+        @helper.inputText(form("password"))
+
+        <input type="submit" value="Log in">
+
+        <a href="@{routes.RegisterNewUser.form()}">Register new user</a> 
+    }
+
+}
