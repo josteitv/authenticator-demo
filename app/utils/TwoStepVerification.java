@@ -12,23 +12,49 @@ import org.apache.commons.codec.binary.Base32;
 
 public class TwoStepVerification {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     /**
-     * Generates 10 bytes of random bits and then Base32 encode them.
+     * Generates a 10 bit random secret to share between mobile phone and
+     * server. The secret is Base32 encoded.
      * 
      * @return a Base32 encoded string of 10 random bytes
      */
     public static String generateSecret() {
         byte[] buffer = new byte[10];
-        new SecureRandom().nextBytes(buffer);
+        SECURE_RANDOM.nextBytes(buffer);
         return new String(new Base32().encode(buffer));
     }
 
+    /**
+     * Creates an URL pointing to a QR code image used to import the secret into
+     * Google Authenticator. By using this method to create the QR code, the
+     * secret is sent to Google. If you do not want to share the secret with
+     * Google, the QR code must be created by a QR code library.
+     * 
+     * @param label
+     *            The label to display inside Google Authenticator on the mobile
+     *            phone
+     * @param secret
+     *            The secret to share between the server and the phone
+     * @return An URL pointing to a QR code image hosted by Google
+     */
     public static String createQrCodeUrl(String label, String secret) {
         String format = "https://chart.googleapis.com/chart"
                 + "?chs=200x200&chld=M%%7C0&cht=qr&chl=otpauth://totp/%s%%3Fsecret%%3D%s";
         return String.format(format, label, secret);
     }
 
+    /**
+     * Verifies if a code is valid for a given secret. The code is valid for 90
+     * seconds. The current system time is used in the calculation.
+     * 
+     * @param code
+     *            The user supplied code to verify
+     * @param secret
+     *            The shared secret between the mobile phone and the server
+     * @return true if the code is valid, false if the code is invalid
+     */
     public static boolean verifyCode(String code, String secret) {
         try {
             // Number of 30 second intervals since epoch
@@ -36,6 +62,7 @@ public class TwoStepVerification {
             byte[] secretBytes = new Base32().decode(secret);
             int codeInt = Integer.parseInt(code);
 
+            // A window where the code is valid
             int window = 1;
             for (int i = -window; i <= window; i++) {
                 if (hotp(secretBytes, timesteps + i) == codeInt) {
@@ -54,8 +81,7 @@ public class TwoStepVerification {
         // Convert number of timesteps to binary
         byte[] timeBytes = ByteBuffer.allocate(8).putLong(timesteps).array();
 
-        // Generate a sha1-hmac of the current timestep, using the secret as the
-        // key
+        // Generate a sha1-hmac of the current timestep, using the secret as the key
         byte[] hmac;
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
