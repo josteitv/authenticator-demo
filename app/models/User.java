@@ -28,7 +28,6 @@ public class User extends Model {
         }
 
         boolean passwordVerified = PasswordUtils.verifyPassword(password, user.password);
-        System.out.println("Password ok: " + passwordVerified);
 
         return passwordVerified ? user : null;
     }
