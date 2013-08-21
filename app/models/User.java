@@ -7,6 +7,7 @@ import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 import utils.PasswordUtils;
+import utils.TwoStepVerification;
 
 @Entity
 public class User extends Model {
@@ -23,7 +24,7 @@ public class User extends Model {
 
     private static Finder<String, User> find = new Finder<>(String.class, User.class);
 
-    public static User authenticate(String username, String password) {
+    public static User authenticate(String username, String password, String code) {
         User user = find.where().eq("username", username).findUnique();
         if (user == null) {
             return null;
@@ -31,7 +32,9 @@ public class User extends Model {
 
         boolean passwordVerified = PasswordUtils.verifyPassword(password, user.password);
 
-        return passwordVerified ? user : null;
+        boolean codeVerified = TwoStepVerification.verifyCode(code, user.secret);
+
+        return passwordVerified && codeVerified ? user : null;
     }
 
     public static void create(User user) {
