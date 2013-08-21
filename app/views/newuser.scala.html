@@ -1,4 +1,4 @@
-@(form: Form[User])
+@(form: Form[User], secret: String, url: String)
 
 @main("Register new user") {
     
@@ -14,6 +14,10 @@
 
     	@helper.inputText(form("username"))
     	@helper.inputText(form("password"))
+
+        <input type="hidden" name="secret" value='@{ secret }' />
+        <img src="@{ url }" />
+        @{ secret }
 
         <br><input type="submit" value="Register new user">
     }
